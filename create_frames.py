@@ -5,11 +5,11 @@ import os
 import csv
 import numpy as np
 
-N = 100
-V = 20
-DATA_PATH = 'Charades_v1_480/'
-SAVE_PATH = 'test_frames/'
-CAPTIONS_FILE = 'Charades/Charades_v1_test.csv'
+N = 10
+DATA_PATH = '../data/'
+SAVE_PATH = '../extra_train_frames/'
+CAPTIONS_FILE = 'Charades_v1_train.csv'
+V_IDS_PATH = "extra_train_video_ids.txt"
 
 # Function to extract frames
 def frame_capture(v_id):
@@ -37,7 +37,12 @@ def frame_capture(v_id):
         # function to extract frames
         success, image = vidObj.read()
 
-    print("Done ", v_id)
+    #print("Done ", v_id)
+
+v_ids = []
+v_ids_file = open(V_IDS_PATH, "r")
+for v_id in v_ids_file:
+    v_ids.append(v_id.split('\n')[0])
 
 captions = {}
 
@@ -49,14 +54,17 @@ with open(CAPTIONS_FILE, 'r') as file:
         if (i == 0):
             i += 1
             continue
-        captions[row[0]] = row[6]
-        if (i == 20):
-            break
-        i += 1
+        if (row[0] in v_ids):
+            captions[row[0]] = row[6]
+            i += 1
 
-with open(SAVE_PATH + 'captions.json', 'w') as f:
-    json.dump(captions, f)
+#with open(SAVE_PATH + 'captions.json', 'w') as f:
+#    json.dump(captions, f)
 
 #Create frame images and image data
+i = 0
 for v_id in captions:
     frame_capture(v_id)
+    if (i % 50 == 0):
+        print("Done ", i, " videos")
+    i += 1
